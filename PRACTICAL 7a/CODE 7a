@@ -1,0 +1,83 @@
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
+#include <sys/wait.h>
+
+int main() {
+    int pipe1[2], pipe2[2];
+    pid_t pid;
+    char input[200], buffer[200], file_data[300];
+    FILE *fp;
+
+  
+    if (pipe(pipe1) == -1 || pipe(pipe2) == -1) {
+        perror("Pipe creation failed");
+        return 1;
+    }
+
+    pid = fork();
+
+    if (pid < 0) {
+        perror("Fork failed");
+        return 1;
+    }
+
+    if (pid > 0) {
+        // ---------- Parent Process ----------
+        close(pipe1[0]); 
+        close(pipe2[1]); 
+
+        printf("Enter a sentence:\n");
+        fgets(input, sizeof(input), stdin);
+
+        write(pipe1[1], input, strlen(input) + 1);
+
+        wait(NULL);
+
+        read(pipe2[0], file_data, sizeof(file_data));
+
+        printf("\n--- Result from Child ---\n");
+        printf("%s\n", file_data);
+
+        close(pipe1[1]);
+        close(pipe2[0]);
+    }
+    else {
+        // ---------- Child Process ----------
+        close(pipe1[1]); // Close writing end of pipe1
+        close(pipe2[0]); // Close reading end of pipe2
+
+        read(pipe1[0], buffer, sizeof(buffer));
+
+        int chars = 0, words = 0, lines = 1;
+        for (int i = 0; buffer[i] != '\0'; i++) {
+            chars++;
+            if (buffer[i] == ' ' || buffer[i] == '\n' || buffer[i] == '\t')
+                words++;
+            if (buffer[i] == '\n')
+                lines++;
+        }
+        words++; 
+
+        fp = fopen("output.txt", "w");
+        if (fp == NULL) {
+            perror("File error");
+            exit(1);
+        }
+        fprintf(fp, "Characters: %d\nWords: %d\nLines: %d\n", chars, words, lines);
+        fclose(fp);
+
+        fp = fopen("output.txt", "r");
+        fread(file_data, sizeof(char), sizeof(file_data), fp);
+        fclose(fp);
+
+        write(pipe2[1], file_data, strlen(file_data) + 1);
+
+        close(pipe1[0]);
+        close(pipe2[1]);
+        exit(0);
+    }
+
+    return 0;
+}
