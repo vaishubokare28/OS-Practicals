@@ -1,0 +1,105 @@
+#!/bin/bash
+
+FILENAME="Address_Book.txt"
+
+create_address_book() {
+    if [ ! -f "$FILENAME" ]; then
+        echo "| Name | Email | Phone | Address |" > "$FILENAME"
+        echo "Address book created."
+    else
+        echo "Address book already exists."
+    fi
+}
+
+view_address_book() {
+    if [ ! -f "$FILENAME" ]; then
+        echo "Address book not found. Please create one first."
+        return
+    fi
+
+    if [ ! -s "$FILENAME" ]; then
+        echo "Address book is empty."
+        return
+    fi
+
+    echo "---- Address Book ----"
+    cat "$FILENAME"
+    echo "----------------------"
+}
+
+insert_record() {
+    if [ ! -f "$FILENAME" ]; then
+        echo "Address book not found. Please create one first."
+        return
+    fi
+
+    read -p "Enter Name: " name
+    read -p "Enter Email: " email
+    read -p "Enter Phone: " phone
+    read -p "Enter Address: " address
+
+    echo "| $name | $email | $phone | $address |" >> "$FILENAME"
+    echo "Record added successfully."
+}
+
+delete_record() {
+    if [ ! -f "$FILENAME" ]; then
+        echo "Address book not found."
+        return
+    fi
+
+    read -p "Enter Name to delete: " name
+    if ! grep -iq "$name" "$FILENAME"; then
+        echo "Record not found."
+        return
+    fi
+
+    grep -iv "$name" "$FILENAME" > temp.txt && mv temp.txt "$FILENAME"
+    echo "Record deleted successfully."
+}
+
+update_record() {
+    if [ ! -f "$FILENAME" ]; then
+        echo "Address book not found."
+        return
+    fi
+
+    read -p "Enter Name to update: " name
+    if ! grep -iq "$name" "$FILENAME"; then
+        echo "Record not found."
+        return
+    fi
+
+    grep -iv "$name" "$FILENAME" > temp.txt && mv temp.txt "$FILENAME"
+
+    read -p "Enter New Email: " email
+    read -p "Enter New Phone: " phone
+    read -p "Enter New Address: " address
+    echo "| $name | $email | $phone | $address |" >> "$FILENAME"
+
+    echo "Record updated successfully."
+}
+
+# ---- Main Menu ----
+while true; do
+    echo ""
+    echo "===== ADDRESS BOOK MENU ====="
+    echo "1. Create Address Book"
+    echo "2. View Address Book"
+    echo "3. Insert Record"
+    echo "4. Delete Record"
+    echo "5. Update Record"
+    echo "6. Exit"
+    echo "=============================="
+    read -p "Enter your choice: " choice
+
+    case $choice in
+        1) create_address_book ;;
+        2) view_address_book ;;
+        3) insert_record ;;
+        4) delete_record ;;
+        5) update_record ;;
+        6) echo "Goodbye!"; exit 0 ;;
+        *) echo "Invalid choice. Try again." ;;
+    esac
+done
