@@ -1,0 +1,224 @@
+Here’s more written content you can include in your practical record or viva notes to make it complete and impressive 👇
+
+
+---
+
+🧾 Title:
+
+Inter-Process Communication using Shared Memory (System V)
+
+
+---
+
+🎯 Aim:
+
+To demonstrate Inter-Process Communication (IPC) between a server and a client process using System V Shared Memory.
+
+
+---
+
+⚙️ Theory / Introduction:
+
+Inter-Process Communication (IPC) is a mechanism that allows processes to communicate and share data.
+Shared Memory is the fastest IPC mechanism because the data is directly shared in memory without intermediate copying.
+
+In System V Shared Memory, one process (usually the server) creates a memory segment using shmget(), attaches it with shmat(), and writes data.
+Another process (client) uses the same key to attach the same segment, reads the data, and detaches it using shmdt().
+
+
+---
+
+🧩 Algorithm
+
+Server Side
+
+1. Generate a unique key using ftok().
+
+
+2. Create a shared memory segment using shmget().
+
+
+3. Attach the shared memory using shmat().
+
+
+4. Write data into the shared memory.
+
+
+5. Wait for client to read the data.
+
+
+6. Detach (shmdt()) and remove (shmctl()) the shared memory.
+
+
+
+Client Side
+
+1. Generate the same key using ftok().
+
+
+2. Access the existing shared memory using shmget().
+
+
+3. Attach to the memory using shmat().
+
+
+4. Read the message written by the server.
+
+
+5. Detach the shared memory using shmdt().
+
+
+
+
+---
+
+📜 System Calls Description
+
+Function	Purpose
+
+ftok(path, id)	Generates a unique key for both processes.
+shmget(key, size, flag)	Creates or accesses a shared memory segment.
+shmat(shmid, addr, flag)	Attaches the shared memory segment to process.
+shmdt(addr)	Detaches the shared memory segment.
+shmctl(shmid, cmd, buf)	Performs control operations like IPC_RMID to remove segment.
+
+
+
+---
+
+🧠 Header Files Used
+
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+
+---
+
+🖥️ Execution Steps
+
+1. Compile both programs:
+
+gcc server.c -o server
+gcc client.c -o client
+
+
+2. Run the server first:
+
+./server
+
+
+3. Then run the client:
+
+./client
+
+
+4. Observe the message exchange.
+
+
+
+
+---
+
+🧾 Sample Output
+
+Server Terminal:
+
+Server: Shared memory created (id=32768)
+Enter message to send to client: Hello Client!
+Server: Message written to shared memory.
+Server: Waiting for client to read... (Press Enter when done)
+Server: Shared memory detached and removed.
+
+Client Terminal:
+
+Client: Message read from shared memory: Hello Client!
+Client: Shared memory detached.
+
+
+---
+
+🔍 Advantages
+
+1. Very fast communication.
+
+
+2. No data copying overhead.
+
+
+3. Useful for large data transfer.
+
+
+
+
+---
+
+⚠️ Disadvantages
+
+1. No built-in synchronization — must use semaphores.
+
+
+2. Limited to processes on the same machine.
+
+
+3. Requires manual cleanup (shmctl IPC_RMID).
+
+
+
+
+---
+
+📚 Applications
+
+Real-time systems and operating systems.
+
+Client-server communication on the same system.
+
+Shared databases and caching mechanisms.
+
+
+
+---
+
+🧩 Result
+
+Inter-Process Communication using System V Shared Memory between a server and client was successfully demonstrated.
+The server wrote data to shared memory, and the client read it correctly.
+
+
+---
+
+🧠 Viva Topics to Revise (Key Points)
+
+What is IPC?
+
+Difference between Shared Memory and Message Queue.
+
+Role of ftok(), shmget(), shmat(), shmdt(), and shmctl().
+
+Why IPC_CREAT and 0666?
+
+Use of IPC_RMID.
+
+Synchronization in shared memory.
+
+Commands: ipcs, ipcrm.
+
+
+
+---
+
+Would you like me to give you a formatted practical record page (PDF or DOCX) containing:
+
+Aim
+
+Algorithm
+
+Code (Server + Client)
+
+Output
+
+Viva Q&A
+That you can directly print or submit?
